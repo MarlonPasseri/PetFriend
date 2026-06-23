@@ -57,4 +57,36 @@ class PedidoConfirmadoListenerIT {
             assertThat(item.getQuantidadeDisponivel().valor()).isEqualTo(97);
         });
     }
+
+    @Test
+    void naoReservaEmDuplicidadeQuandoOMesmoEventoEhReentregue() {
+        // Estado atual antes do teste (independe de ordem com outros testes,
+        // pois o H2 em memória é compartilhado no mesmo JVM).
+        int reservadoInicial = repository.buscarPorSku(new SKU("RACAO-001"))
+                .orElseThrow().getQuantidadeReservada().valor();
+
+        // Mesmo eventId entregue duas vezes (simula a reentrega at-least-once).
+        var evento = new PedidoConfirmadoEvent(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                Instant.now(),
+                List.of(new PedidoConfirmadoEvent.ItemPedido("RACAO-001", 5)));
+
+        rabbitTemplate.convertAndSend(EventRouting.EXCHANGE, EventRouting.RK_PEDIDO_CONFIRMADO, evento);
+
+        // Aguarda a primeira reserva ser aplicada (+5).
+        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
+            var item = repository.buscarPorSku(new SKU("RACAO-001")).orElseThrow();
+            assertThat(item.getQuantidadeReservada().valor()).isEqualTo(reservadoInicial + 5);
+        });
+
+        // Reentrega do MESMO evento: deve ser descartada pela idempotência.
+        rabbitTemplate.convertAndSend(EventRouting.EXCHANGE, EventRouting.RK_PEDIDO_CONFIRMADO, evento);
+
+        // Mesmo após tempo suficiente, a reserva NÃO é aplicada de novo (+5 apenas).
+        await().during(Duration.ofSeconds(3)).atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
+            var item = repository.buscarPorSku(new SKU("RACAO-001")).orElseThrow();
+            assertThat(item.getQuantidadeReservada().valor()).isEqualTo(reservadoInicial + 5);
+        });
+    }
 }

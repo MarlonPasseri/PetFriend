@@ -23,9 +23,12 @@ public class PedidoConfirmadoListener {
     private static final Logger log = LoggerFactory.getLogger(PedidoConfirmadoListener.class);
 
     private final ItemEstoqueRepository repository;
+    private final EventoProcessadoRepository eventosProcessados;
 
-    public PedidoConfirmadoListener(ItemEstoqueRepository repository) {
+    public PedidoConfirmadoListener(ItemEstoqueRepository repository,
+                                    EventoProcessadoRepository eventosProcessados) {
         this.repository = repository;
+        this.eventosProcessados = eventosProcessados;
     }
 
     @RabbitListener(queues = AlmoxarifadoMessagingConfig.QUEUE)
@@ -33,6 +36,14 @@ public class PedidoConfirmadoListener {
     public void onPedidoConfirmado(PedidoConfirmadoEvent evento) {
         log.info("Recebido PedidoConfirmadoEvent pedidoId={} eventId={}",
                 evento.pedidoId(), evento.eventId());
+
+        // Idempotência: a entrega é at-least-once (com retry), então o mesmo
+        // evento pode chegar mais de uma vez. Se já foi processado, descarta o
+        // reprocessamento para não reservar estoque em duplicidade.
+        if (eventosProcessados.jaProcessado(evento.eventId())) {
+            log.info("Evento já processado eventId={}, ignorando (idempotência).", evento.eventId());
+            return;
+        }
 
         for (PedidoConfirmadoEvent.ItemPedido item : evento.itens()) {
             SKU sku = new SKU(item.sku());
@@ -44,7 +55,10 @@ public class PedidoConfirmadoListener {
 
             log.info("Estoque reservado SKU={} quantidade={}", item.sku(), item.quantidade());
         }
-        // Recomendado: registrar eventId já processado para garantir idempotência
-        // em entregas at-least-once (descartar reprocessamentos).
+
+        // Marca o evento como processado na MESMA transação da reserva: ou tudo
+        // commita junto, ou nada (em falha, o retry/redelivery reprocessa do zero).
+        // A PK em event_id também barra duplicatas concorrentes no commit.
+        eventosProcessados.registrar(evento.eventId());
     }
 }
