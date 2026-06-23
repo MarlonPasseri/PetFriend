@@ -102,6 +102,16 @@ Cada repository expõe operações apenas sobre o *aggregate root*; a implementa
 - [`ItemEstoqueRepository`](petfriends-almoxarifado/src/main/java/com/petfriends/almoxarifado/domain/ItemEstoqueRepository.java) → impl. [ItemEstoqueRepositoryJpa](petfriends-almoxarifado/src/main/java/com/petfriends/almoxarifado/infra/persistence/ItemEstoqueRepositoryJpa.java)
 - [`EntregaRepository`](petfriends-transporte/src/main/java/com/petfriends/transporte/domain/EntregaRepository.java) → impl. [EntregaRepositoryJpa](petfriends-transporte/src/main/java/com/petfriends/transporte/infra/persistence/EntregaRepositoryJpa.java)
 
+### Detalhes de implementação
+
+- **Factory de reconstituição** — o agregado `Entrega` expõe `Entrega.reconstituir(...)`,
+  usado pelo repositório ao ler do banco. Reidrata o estado persistido (incl. `status`)
+  sem disparar regras de transição e sem reflexão.
+- **Fonte única de roteamento** — os nomes de exchange e routing keys ficam em
+  [`EventRouting`](petfriends-shared-events/src/main/java/com/petfriends/shared/events/EventRouting.java)
+  (módulo de contrato). Configs e testes referenciam essas constantes, evitando strings
+  mágicas duplicadas (um typo viraria erro de compilação, não bug silencioso).
+
 ---
 
 ## Domain Events — respostas dissertativas
@@ -265,6 +275,12 @@ docker compose up --build
 Sobe RabbitMQ + os 3 serviços; espera o broker ficar saudável (healthcheck) antes de
 iniciar os consumidores; persiste o H2 em volumes nomeados. Painel do RabbitMQ em
 http://localhost:15672 (guest/guest).
+
+> **Mudou o schema/migrations?** Suba com volumes limpos, senão o Flyway encontra tabelas
+> antigas e aborta (`Found non-empty schema but no schema history table`):
+> ```bash
+> docker compose down -v && docker compose up --build
+> ```
 
 ### Opção B — Maven (desenvolvimento)
 
