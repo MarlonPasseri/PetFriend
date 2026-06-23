@@ -2,6 +2,7 @@ package com.petfriends.almoxarifado;
 
 import com.petfriends.almoxarifado.domain.ItemEstoqueRepository;
 import com.petfriends.almoxarifado.domain.SKU;
+import com.petfriends.shared.events.EventRouting;
 import com.petfriends.shared.events.PedidoConfirmadoEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -48,7 +49,7 @@ class PedidoConfirmadoListenerIT {
                 Instant.now(),
                 List.of(new PedidoConfirmadoEvent.ItemPedido("RACAO-001", 3)));
 
-        rabbitTemplate.convertAndSend("pedidos.exchange", "pedido.confirmado", evento);
+        rabbitTemplate.convertAndSend(EventRouting.EXCHANGE, EventRouting.RK_PEDIDO_CONFIRMADO, evento);
 
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
             var item = repository.buscarPorSku(new SKU("RACAO-001")).orElseThrow();

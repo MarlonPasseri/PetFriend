@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.petfriends.shared.events.EventRouting;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -24,10 +25,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TransporteMessagingConfig {
 
-    public static final String EXCHANGE = "pedidos.exchange";
+    public static final String EXCHANGE = EventRouting.EXCHANGE;
+    public static final String ROUTING_KEY = EventRouting.RK_PEDIDO_DESPACHADO;
     public static final String QUEUE = "transporte.pedido-despachado.queue";
     public static final String DLQ = "transporte.pedido-despachado.dlq";
-    public static final String ROUTING_KEY = "pedido.despachado";
 
     @Bean
     TopicExchange pedidosExchange() {

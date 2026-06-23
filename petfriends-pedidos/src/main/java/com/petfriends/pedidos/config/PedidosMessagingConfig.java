@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.petfriends.shared.events.EventRouting;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +22,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PedidosMessagingConfig {
 
-    public static final String EXCHANGE = "pedidos.exchange";
-    public static final String RK_CONFIRMADO = "pedido.confirmado";
-    public static final String RK_DESPACHADO = "pedido.despachado";
+    public static final String EXCHANGE = EventRouting.EXCHANGE;
+    public static final String RK_CONFIRMADO = EventRouting.RK_PEDIDO_CONFIRMADO;
+    public static final String RK_DESPACHADO = EventRouting.RK_PEDIDO_DESPACHADO;
 
     @Bean
     TopicExchange pedidosExchange() {
