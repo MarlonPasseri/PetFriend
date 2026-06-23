@@ -2,6 +2,7 @@ package com.petfriends.transporte;
 
 import com.petfriends.transporte.domain.Entrega;
 import com.petfriends.transporte.domain.EntregaRepository;
+import com.petfriends.shared.events.EventRouting;
 import com.petfriends.shared.events.PedidoDespachadoEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -47,7 +48,7 @@ class PedidoDespachadoListenerIT {
         var evento = new PedidoDespachadoEvent(
                 UUID.randomUUID(), pedidoId, UUID.randomUUID(), Instant.now(), endereco);
 
-        rabbitTemplate.convertAndSend("pedidos.exchange", "pedido.despachado", evento);
+        rabbitTemplate.convertAndSend(EventRouting.EXCHANGE, EventRouting.RK_PEDIDO_DESPACHADO, evento);
 
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
             var entrega = repository.buscarPorPedido(pedidoId).orElseThrow();

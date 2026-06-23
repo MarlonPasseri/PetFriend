@@ -5,7 +5,6 @@ import com.petfriends.transporte.domain.EnderecoEntrega;
 import com.petfriends.transporte.domain.EntregaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,10 +39,9 @@ public class EntregaRepositoryJpa implements EntregaRepository {
                 end.getLogradouro(), end.getNumero(), end.getComplemento(),
                 end.getBairro(), end.getCidade(), end.getUf(), end.getCep());
 
-        Entrega entrega = new Entrega(e.getId(), e.getPedidoId(), endereco);
-        // Reconstitui o estado persistido (o agregado nasce CRIADA; aplicamos o status real).
-        reconstituirStatus(entrega, e.getStatus());
-        return entrega;
+        return Entrega.reconstituir(
+                e.getId(), e.getPedidoId(), endereco,
+                e.getStatus(), e.getDespachadaEm(), e.getAtualizadaEm());
     }
 
     private EntregaJpaEntity toEntity(Entrega entrega) {
@@ -59,20 +57,5 @@ public class EntregaRepositoryJpa implements EntregaRepository {
                 entrega.getStatus(),
                 entrega.getDespachadaEm(),
                 entrega.getAtualizadaEm());
-    }
-
-    /**
-     * Reidrata o status do agregado a partir do registro persistido.
-     * Em um modelo de produção, prefira um construtor de reconstituição
-     * dedicado no agregado em vez de reflexão.
-     */
-    private void reconstituirStatus(Entrega entrega, Entrega.StatusEntrega status) {
-        try {
-            Field campo = Entrega.class.getDeclaredField("status");
-            campo.setAccessible(true);
-            campo.set(entrega, status);
-        } catch (ReflectiveOperationException ex) {
-            throw new IllegalStateException("Falha ao reconstituir status da Entrega", ex);
-        }
     }
 }

@@ -1,4 +1,5 @@
 com\petfriends\shared\events\PedidoConfirmadoEvent$ItemPedido.class
+com\petfriends\shared\events\EventRouting.class
 com\petfriends\shared\events\PedidoDespachadoEvent$EnderecoEntregaDto.class
 com\petfriends\shared\events\PedidoConfirmadoEvent.class
 com\petfriends\shared\events\PedidoDespachadoEvent.class
