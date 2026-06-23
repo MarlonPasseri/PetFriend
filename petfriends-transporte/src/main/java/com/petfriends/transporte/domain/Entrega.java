@@ -29,6 +29,27 @@ public class Entrega {
         this.atualizadaEm = LocalDateTime.now();
     }
 
+    /** Construtor de reconstituição (uso exclusivo do factory). */
+    private Entrega(UUID id, UUID pedidoId, EnderecoEntrega endereco, StatusEntrega status,
+                    LocalDateTime despachadaEm, LocalDateTime atualizadaEm) {
+        this.id = id;
+        this.pedidoId = pedidoId;
+        this.endereco = endereco;
+        this.status = status;
+        this.despachadaEm = despachadaEm;
+        this.atualizadaEm = atualizadaEm;
+    }
+
+    /**
+     * Reconstrói o agregado a partir do estado já persistido — sem disparar
+     * regras de transição. Usado pelo repositório ao ler do banco.
+     */
+    public static Entrega reconstituir(UUID id, UUID pedidoId, EnderecoEntrega endereco,
+                                       StatusEntrega status, LocalDateTime despachadaEm,
+                                       LocalDateTime atualizadaEm) {
+        return new Entrega(id, pedidoId, endereco, status, despachadaEm, atualizadaEm);
+    }
+
     public void despachar() {
         exigir(status == StatusEntrega.CRIADA, "Só é possível despachar uma entrega CRIADA");
         this.status = StatusEntrega.EM_TRANSITO;
