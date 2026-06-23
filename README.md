@@ -17,12 +17,13 @@ forma **assíncrona**, por eventos — exatamente a seta vermelha dos diagramas 
 2. [Arquitetura](#arquitetura)
 3. [Modelagem DDD](#modelagem-ddd)
 4. [Domain Events — respostas dissertativas](#domain-events--respostas-dissertativas)
-5. [Mapa: questão da prova → artefato](#mapa-questão-da-prova--artefato)
-6. [Como executar](#como-executar)
-7. [Console interativo](#console-interativo)
-8. [Testes e qualidade](#testes-e-qualidade)
-9. [Stack técnica](#stack-técnica)
-10. [Estrutura de pastas](#estrutura-de-pastas)
+5. [Observabilidade — respostas dissertativas](#observabilidade--respostas-dissertativas)
+6. [Mapa: questão da prova → artefato](#mapa-questão-da-prova--artefato)
+7. [Como executar](#como-executar)
+8. [Console interativo](#console-interativo)
+9. [Testes e qualidade](#testes-e-qualidade)
+10. [Stack técnica](#stack-técnica)
+11. [Estrutura de pastas](#estrutura-de-pastas)
 
 ---
 
@@ -161,6 +162,76 @@ completo, para montar a `Entrega` sem callback — veja
 
 ---
 
+## Observabilidade — respostas dissertativas
+
+> Testes e observabilidade em microsserviços com **Zipkin**, **Micrometer** e **ELK Stack**.
+
+### O.1 — O que é um Gateway de Serviço (API Gateway), vantagens e desvantagens
+
+É um **ponto único de entrada** que fica na frente dos microsserviços. O cliente (ex.: o
+`PetFriends_Web`) fala só com o gateway, que **roteia** cada requisição para o serviço certo
+(Clientes, Produtos, Pedidos) e concentra preocupações transversais: roteamento,
+autenticação/autorização, *rate limiting*, *SSL termination*, agregação de respostas,
+injeção do **ID de correlação** e cache.
+
+| Vantagens | Desvantagens |
+|---|---|
+| Esconde a topologia interna (o cliente não conhece endereços/portas de cada serviço) | **Ponto único de falha** e possível gargalo — exige alta disponibilidade |
+| Centraliza segurança, *throttling* e *logging* (não se repete em cada serviço) | Mais um componente para implantar e operar |
+| Permite evoluir/refatorar serviços por trás sem quebrar o cliente | Risco de virar um “monólito de roteamento” se acumular lógica de negócio |
+
+> Exemplos: Spring Cloud Gateway, Kong, NGINX, AWS API Gateway.
+
+### O.2 — O que é ID de Correlação e seus pré-requisitos
+
+É um **identificador único gerado por requisição** e **propagado por todos os serviços**
+envolvidos no atendimento dela. Com ele, juntam-se logs/traces espalhados por vários
+microsserviços e reconstrói-se a jornada completa de uma única requisição. No PetFriends,
+o ID viajaria de `Pedidos` → evento → `Almoxarifado`, rastreando “este pedido reservou
+este estoque” mesmo na comunicação assíncrona.
+
+**Pré-requisitos:**
+- **Geração na borda** — criado no ponto de entrada (normalmente o API Gateway), se ainda não existir.
+- **Propagação** — repassado em **todas as chamadas**: em HTTP via header (`X-Correlation-Id` / `traceparent`) e em **mensageria via header da mensagem** (AMQP), não só REST.
+- **Registro** — incluído em **todo log** (ex.: via MDC do SLF4J) e nos *spans* de tracing.
+- **Padronização** — mesmo nome de header/campo combinado entre todos os serviços.
+
+### O.3 — Função do Micrometer e sua relação com o Zipkin
+
+**Micrometer** é a biblioteca de **instrumentação/telemetria** do ecossistema Spring — uma
+*facade* (assim como o SLF4J é para logs, o Micrometer é para métricas e tracing). Coleta
+**métricas** (latência, throughput, memória, filas) e, com o **Micrometer Tracing**, gera
+**traces distribuídos** (spans), de forma **agnóstica** ao backend.
+
+O **Zipkin** é o sistema que **armazena e visualiza** esses traces. O Micrometer
+**instrumenta** a aplicação e **exporta** os spans (com o ID de correlação/trace) para o Zipkin:
+
+```
+Micrometer (gera/propaga os spans)  ──exporta──▶  Zipkin (coleta, armazena e mostra a timeline da requisição)
+```
+
+São complementares: o Micrometer **produz** os dados de tracing; o Zipkin **recebe e exibe**.
+
+### O.4 — O que é Agregador de Logs, vantagens e desvantagens
+
+É um sistema que **coleta, centraliza, indexa e permite pesquisar** os logs de **todos** os
+microsserviços em um único lugar. O exemplo clássico é a **ELK Stack**:
+**E**lasticsearch (armazena e indexa) · **L**ogstash (coleta/transforma; alternativas leves:
+Beats/Fluentd) · **K**ibana (visualização e dashboards).
+
+| Vantagens | Desvantagens |
+|---|---|
+| Visão unificada — uma busca cobre todos os serviços; com o ID de correlação reconstrói-se a jornada | **Custo de infraestrutura** (Elasticsearch consome CPU, memória e disco) |
+| Diagnóstico muito mais rápido em ambiente distribuído | Complexidade operacional (mais um sistema crítico para manter e escalar) |
+| Dashboards, alertas e retenção centralizados | Risco de exposição de **dados sensíveis** se os logs não forem filtrados/mascarados |
+
+> **Os três pilares juntos:** o **Gateway** injeta o **ID de correlação** → o **Micrometer**
+> propaga esse ID nos traces enviados ao **Zipkin** (o *como* a requisição fluiu, com tempos)
+> → o **agregador de logs (ELK)** guarda os logs marcados com o mesmo ID (o *o que* aconteceu
+> em detalhe). Tracing e logs amarrados pelo mesmo identificador.
+
+---
+
 ## Mapa: questão da prova → artefato
 
 | Questão | Entregável | Arquivo |
@@ -176,6 +247,10 @@ completo, para montar a `Entrega` sem callback — veja
 | **Async 3.2** — Serviço que recebe os eventos (Almoxarifado) | `@RabbitListener` que reserva estoque | [PedidoConfirmadoListener.java](petfriends-almoxarifado/src/main/java/com/petfriends/almoxarifado/application/PedidoConfirmadoListener.java) |
 | **Async 3.3** — Config de mensageria (Transporte) | Exchange + fila + binding + DLQ | [TransporteMessagingConfig.java](petfriends-transporte/src/main/java/com/petfriends/transporte/config/TransporteMessagingConfig.java) |
 | **Async 3.4** — Serviço que recebe os eventos (Transporte) | `@RabbitListener` que cria a entrega | [PedidoDespachadoListener.java](petfriends-transporte/src/main/java/com/petfriends/transporte/application/PedidoDespachadoListener.java) |
+| **Observabilidade O.1** — Gateway de Serviço | Resposta dissertativa | [seção](#observabilidade--respostas-dissertativas) |
+| **Observabilidade O.2** — ID de Correlação | Resposta dissertativa | [seção](#observabilidade--respostas-dissertativas) |
+| **Observabilidade O.3** — Micrometer × Zipkin | Resposta dissertativa | [seção](#observabilidade--respostas-dissertativas) |
+| **Observabilidade O.4** — Agregador de Logs | Resposta dissertativa | [seção](#observabilidade--respostas-dissertativas) |
 
 ---
 
