@@ -1,0 +1,11 @@
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\infra\persistence\EntregaJpaEntity.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\TransporteApplication.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\infra\persistence\EnderecoEmbeddable.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\domain\EnderecoEntrega.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\domain\EntregaRepository.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\infra\persistence\EntregaJpaRepository.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\api\EntregaQueryController.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\application\PedidoDespachadoListener.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\config\TransporteMessagingConfig.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\domain\Entrega.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-transporte\src\main\java\com\petfriends\transporte\infra\persistence\EntregaRepositoryJpa.java

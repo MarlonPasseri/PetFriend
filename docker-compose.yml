@@ -1,0 +1,65 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: petfriends-rabbitmq
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pedidos:
+    build:
+      context: .
+      args:
+        MODULE: petfriends-pedidos
+    container_name: petfriends-pedidos
+    ports:
+      - "8080:8080"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  almoxarifado:
+    build:
+      context: .
+      args:
+        MODULE: petfriends-almoxarifado
+    container_name: petfriends-almoxarifado
+    ports:
+      - "8081:8081"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - almoxarifado-data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  transporte:
+    build:
+      context: .
+      args:
+        MODULE: petfriends-transporte
+    container_name: petfriends-transporte
+    ports:
+      - "8082:8082"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - transporte-data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  almoxarifado-data:
+  transporte-data:

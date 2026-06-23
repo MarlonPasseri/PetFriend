@@ -1,0 +1,13 @@
+com\petfriends\almoxarifado\api\EstoqueQueryController.class
+com\petfriends\almoxarifado\domain\Quantidade.class
+com\petfriends\almoxarifado\infra\persistence\ItemEstoqueJpaEntity.class
+com\petfriends\almoxarifado\config\AlmoxarifadoMessagingConfig.class
+com\petfriends\almoxarifado\domain\ItemEstoqueNaoEncontradoException.class
+com\petfriends\almoxarifado\domain\ItemEstoque.class
+com\petfriends\almoxarifado\domain\EstoqueInsuficienteException.class
+com\petfriends\almoxarifado\AlmoxarifadoApplication.class
+com\petfriends\almoxarifado\infra\persistence\ItemEstoqueJpaRepository.class
+com\petfriends\almoxarifado\infra\persistence\ItemEstoqueRepositoryJpa.class
+com\petfriends\almoxarifado\domain\ItemEstoqueRepository.class
+com\petfriends\almoxarifado\domain\SKU.class
+com\petfriends\almoxarifado\application\PedidoConfirmadoListener.class

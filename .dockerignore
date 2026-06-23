@@ -1,0 +1,6 @@
+**/target
+**/data
+.git
+*.md
+petfriends.sh
+.petfriends_last_pedido

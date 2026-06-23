@@ -1,0 +1,13 @@
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\AlmoxarifadoApplication.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\EstoqueInsuficienteException.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\infra\persistence\ItemEstoqueJpaEntity.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\api\EstoqueQueryController.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\Quantidade.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\ItemEstoque.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\application\PedidoConfirmadoListener.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\ItemEstoqueRepository.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\SKU.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\infra\persistence\ItemEstoqueJpaRepository.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\config\AlmoxarifadoMessagingConfig.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\infra\persistence\ItemEstoqueRepositoryJpa.java
+C:\Users\marlon.soares\PETFRIEND\petfriends-almoxarifado\src\main\java\com\petfriends\almoxarifado\domain\ItemEstoqueNaoEncontradoException.java

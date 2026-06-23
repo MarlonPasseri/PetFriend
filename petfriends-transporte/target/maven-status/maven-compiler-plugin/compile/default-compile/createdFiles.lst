@@ -1,0 +1,12 @@
+com\petfriends\transporte\infra\persistence\EnderecoEmbeddable.class
+com\petfriends\transporte\infra\persistence\EntregaJpaRepository.class
+com\petfriends\transporte\api\EntregaQueryController.class
+com\petfriends\transporte\application\PedidoDespachadoListener.class
+com\petfriends\transporte\config\TransporteMessagingConfig.class
+com\petfriends\transporte\infra\persistence\EntregaRepositoryJpa.class
+com\petfriends\transporte\domain\EntregaRepository.class
+com\petfriends\transporte\TransporteApplication.class
+com\petfriends\transporte\domain\EnderecoEntrega.class
+com\petfriends\transporte\domain\Entrega$StatusEntrega.class
+com\petfriends\transporte\domain\Entrega.class
+com\petfriends\transporte\infra\persistence\EntregaJpaEntity.class

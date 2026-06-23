@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: petfriends-almoxarifado
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+          multiplier: 2
+        default-requeue-rejected: false
+  datasource:
+    url: jdbc:h2:file:./data/almoxarifado;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway é dono do schema; Hibernate apenas valida
+    show-sql: true
+  flyway:
+    enabled: true
+  h2:
+    console:
+      enabled: true
