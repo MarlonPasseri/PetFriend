@@ -1,0 +1,22 @@
+# Build (Maven)
+target/
+
+# Bancos H2 locais (gerados em runtime)
+data/
+*.mv.db
+*.trace.db
+
+# Estado do console interativo
+.petfriends_last_pedido
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Sistema
+.DS_Store
+Thumbs.db
